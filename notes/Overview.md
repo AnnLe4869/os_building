@@ -24,3 +24,13 @@ BIOS and UEFI is not mutually exclusive of each other: most device, even modern 
 Directive tells the assembler how to compile the program. The directive is not translated to machine code. For example, `function` tell the assembler that the next syntax is a function, or `.word` tell computer that the variable is of word size. This is specific to assembler
 
 Instruction translated into instruction (i.e machine code) that tell the computer what to do. For example, `add` will add two values and write the result into another register
+
+## Memory model
+
+![Memory space model](memory_space.png)
+
+As you can see, anything that is above the User stack (or just Stack for short) belong to the OS kernel and shall not be touched.
+
+Static data and read only data are generated when we start our code. Some examples are global variable, a string, etc. The heap is memory we dynamically allocated on runtime, and stack is filled up when our program run as part of the ,mechanism (like pass parameters to function, function call, etc.)
+
+The read-only text segment store all the instructions for our program. This is different from above segments: the computer will go through instruction by instruction in this segment, and the instruction here will generate the above segments
