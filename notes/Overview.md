@@ -34,3 +34,15 @@ As you can see, anything that is above the User stack (or just Stack for short) 
 Static data and read only data are generated when we start our code. Some examples are global variable, a string, etc. The heap is memory we dynamically allocated on runtime, and stack is filled up when our program run as part of the ,mechanism (like pass parameters to function, function call, etc.)
 
 The read-only text segment store all the instructions for our program. This is different from above segments: the computer will go through instruction by instruction in this segment, and the instruction here will generate the above segments
+
+## Interrupts
+
+See more on [Interrupts](https://wiki.osdev.org/Interrupts) and [BIOS interrupt call](https://en.wikipedia.org/wiki/BIOS_interrupt_call)
+
+Interrupts are signals from a device, such as a keyboard or a hard drive, to the CPU, telling it to immediately stop whatever it is currently doing and do something else. For example, a keyboard controller can send an interrupt when a character key was pressed. Then the OS can display the character on screen immediately, even if the CPU was doing something completely unrelated before, and return to what it was doing afterwards
+
+Three ways to triggered interrupt:
+
+- An exception. Generated internally by the CPU and used to alert the running kernel of an event or situation which requires its attention. For example, Double Fault, Page Fault, etc.
+- Hardware. For example, keyboard pressed, timer tick, etc.
+- Software Interrupt through `INT` instruction - a software can signal the CPU to indicate it needs attentions. For example, `10h` is video service, `16h` is keyboard I/O, etc.

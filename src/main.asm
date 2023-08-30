@@ -6,10 +6,42 @@ org 0x7C00
 ; `bits` tell assembler to emit 16/32/64 bits code - 16 bits required for backward compatibility
 bits 16
 
+; macros for end of line
+%define ENDL 0x0d, 0x0a
+
+; beginning execure from here
+start:  
+    jmp main
+
+
 ; print a string to screen
 ; Params:
 ;   - ds:si point to string
 puts:
+    ; save registers that we will modify
+    push si
+    push ax
+
+.loop:
+    lodsb   ; load a byte at address DS:(E)SI into AL
+    or al, al   ; verify if the character is null
+    jz .done    ; if null, jump to label .donef
+
+    ; call BIOS interrupt code 0x10, AH=0E
+    mov ah, 0x0e
+    mov bh, 0x00
+    int 0x10
+
+    jmp .loop   ; else, continue the loop
+
+.done:
+    pop ax
+    pop si
+    ret     ; return to caller
+
+
+
+
 
 
 main:
@@ -27,14 +59,15 @@ main:
     ; we choose this location so that when stack grow, it won't hit the text segment
     mov sp, 0x7C00
 
-
-
+    ; call function to print message
+    mov si, msg_hello
+    call puts
 
     ; `hlt` stop CPU from executing (i.e stop) - can be resumed by an interrupt
     hlt
 
-.halt:
-    jmp .halt
+
+msg_hello: db 'Hello World', ENDL, 0
 
 ; `db` write byte to assembled file
 ; `times` used to repeat an instruction/data a certain number of time
