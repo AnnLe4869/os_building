@@ -1,6 +1,8 @@
 {
     "cSpell.words": [
         "bootable",
+        "bootloader",
         "UEFI"
-    ]
+    ],
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }
