@@ -49,5 +49,8 @@ clean:
 
 
 # i386 emulate legacy system (i.e BIOS booting)
-imu: $(BUILD_DIR)/main_floppy.img
+emu: $(BUILD_DIR)/main_floppy.img
 	qemu-system-i386 -fda $(BUILD_DIR)/main_floppy.img
+
+debug:
+	bochs -f bochs_config

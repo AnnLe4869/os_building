@@ -102,3 +102,9 @@ The `esp` is the stack pointer that point to the top of the stack. The `ebp` is 
 For more, see [What is exactly the base pointer and stack pointer? To what do they point?](https://stackoverflow.com/questions/1395591/what-is-exactly-the-base-pointer-and-stack-pointer-to-what-do-they-point)
 
 Next, when we want to have local variable for a subroutine (i.e when registers are not enough), we allocate space in the stack. This is done by moving the base pointer `esp` down by the amount we need. Note that the amount must be a multiple of 4 because each memory sector in x86 is  32 bits (4 bytes). You must manage the `esp` by yourself
+
+## Debugging with Bochs
+
+[Bochs](https://bochs.sourceforge.io/) is a highly portable open source IA-32 (x86) PC emulator written in C++, that runs on most popular platforms. It includes emulation of the Intel x86 CPU, common I/O devices, and a custom BIOS
+
+See [Building an OS - 2 - Reading from the disk](https://www.youtube.com/watch?v=srbnMNk7K7k&list=PLFjM7v6KGMpiH2G-kT781ByCNC_0pKpPN&index=2) too see how to use Bochs to debug a x86 program that emulate BIOS
