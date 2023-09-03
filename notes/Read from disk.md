@@ -15,6 +15,36 @@ The boot loader ultimately has to:
 
 One option of setting up bootloader would be to put the bootloader in first sector then operating system in second sector. The problem with this is that we wouldn't be able to store any other files aside from OS kernel code in the same disk
 
+### FAT file system layout
+
+See [Design of the FAT file system](https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system) and [OSDEv FAT implementation detail](https://wiki.osdev.org/FAT#Implementation_Details) too see how the field in the file corresponds to the layout of FAT file system
+
+Note on the FAT count. We often have 2 FAT because one is for redundancy - see [How FAT (File Allocation Table) works?](https://superuser.com/questions/425251/how-fat-file-allocation-table-works)
+
+Next is the cluster. The data area is divided into identically sized clusters—small blocks of contiguous space. One cluster can consist of multiple sectors (the drive should specify this number at the BIOS parameter block). A file in the file system can span multiple cluster. FAT 12 uses 12 bits to address the clusters. FAT 16 uses 16 bits to address the cluster. We only care about cluster when we are in the data region, as boot record, FAT region and Root Directory Region don't use cluster as measurement
+
+The clusters of a file need not be right next to each other on the disk. In fact it is likely that they are scattered widely throughout the disk. Thus, a file is represented by a chain of clusters (referred to as a singly linked list). The FAT allows the operating system to follow the "chain" of clusters in a file. Each entry of the FAT contain a pointer that points to next cluster
+
+The address to the cluster that contain the file is divided into high and low: the high two bytes is stored in `0x14` offset and the low is stored in `0x1A` offset
+
+The FAT12 file system uses 12 bits per FAT entry. The FAT16 file system uses 16 bits per FAT entry. The File Allocation Table (FAT) is a contiguous number of sectors immediately following the area of reserved sectors. It represents a list of entries that map to each cluster on the volume. Each entry records either one out of five things:
+
+- the cluster number of the next cluster in a chain
+- a special end of cluster-chain (EOC) entry that indicates the end of a chain
+- a special entry to mark a bad cluster
+- a zero to note that the cluster is unused
+
+~~ The first two cluster is reserved so you cannot write to those cluster.~~. The first two entries in a FAT store special values. Clusters are index from 0. We get the sector number from the cluster by doing
+
+```c
+first_sector_of_cluster = ((cluster - 2) * fat_boot->sectors_per_cluster) + first_data_sector;
+```
+
+We can think of each entry for the FAT as the record of the cluster. For example, the first entry (0th) record the cluster that the first cluster (0th) point to. The second entry (1st) record the cluster that the second cluster (1st) point to. So on and so forth. Because as we say above, the first two (2) entries of the FAT are reserved, we can only use cluster starting from the third cluster (2nd). **This third cluster will point to the first sector of the data region**
+
+Hence why we need to subtract `2` from the formula above. To see all the formula for calculation, see [OSDev FAT Programming Guide](https://wiki.osdev.org/FAT#Programming_Guide)
+
+
 ### Format for FAT file system
 
 The device/image file that have FAT file system must have the correct bytes sequence at the start of the device/image. See [OSDEv implementation detail](https://wiki.osdev.org/FAT#Implementation_Details). If you are using Assembly, here is the setup
@@ -86,3 +116,9 @@ void ToCHS(int lba, int *head, int *track, int *sector)
 ```
 
 Or you can check out the formula in [Wikipedia LBA](https://en.wikipedia.org/wiki/Logical_block_addressing)
+
+In a disk we have the concept of sector and cluster. Sector is smallest Addressable Unit (mostly 512 bytes), while cluster is the smallest Allocation Unit (equals to 1 or more sectors and the number of clusters depends on the file system). See [sectors and clusters](https://superuser.com/questions/119446/sectors-and-clusters)
+
+A cluster is a group of contiguous sectors. The cluster size is the number of sectors per cluster, which is set when the filesystem is created (formatted) and cannot be changed after the fact without reformatting the filesystem with a different cluster size.
+
+Why we need to separate into sector and cluster and why not make then one thing? Well, the advantage of file systems considering a cluster/allocation unit/block as the smallest unit, is because addressing the entire disk per-sector would require a larger number of bits to index it all. See [What is the difference between sector and cluster?](https://superuser.com/questions/974824/what-is-the-difference-between-sector-and-cluster)
