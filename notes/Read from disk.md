@@ -122,3 +122,15 @@ In a disk we have the concept of sector and cluster. Sector is smallest Addressa
 A cluster is a group of contiguous sectors. The cluster size is the number of sectors per cluster, which is set when the filesystem is created (formatted) and cannot be changed after the fact without reformatting the filesystem with a different cluster size.
 
 Why we need to separate into sector and cluster and why not make then one thing? Well, the advantage of file systems considering a cluster/allocation unit/block as the smallest unit, is because addressing the entire disk per-sector would require a larger number of bits to index it all. See [What is the difference between sector and cluster?](https://superuser.com/questions/974824/what-is-the-difference-between-sector-and-cluster)
+
+## Disk access using BIOS
+
+When BIOS start, it loads into register `dl` the drive number of the drive it uses to boot. See [PC boot: dl register and drive number](https://stackoverflow.com/questions/11174399/pc-boot-dl-register-and-drive-number) and [BIOS Boot to D](https://theartofmachinery.com/2017/01/24/boot_to_d.html)
+
+We can access disk using BIOS with `INT 13h`. Be careful with this as modern computer has move away from BIOS, and if you run the computer in protected mode (which most modern computer does) this probably won't even work
+
+Detail see [Disk access using the BIOS (INT 13h)](https://wiki.osdev.org/ATA_in_x86_RealMode_(BIOS))
+
+## Load file to memory
+
+See [OSDev Memory Map (x86)](https://wiki.osdev.org/Memory_Map_(x86))

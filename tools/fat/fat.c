@@ -128,7 +128,7 @@ bool readFile(DirectoryEntry* fileEntry, FILE* disk, uint8_t* outputBuf){
 
     do
     {
-        // why subtract 2 here?
+        // why subtract 2 here? - because cluster count start from 0, and first 2 clusters are reserved
         uint32_t lba = g_RootDirectoryEnd + (currentCluster - 2)*g_BootSector.SectorsPerCluster;
         ok = ok && readSectors(disk, lba, g_BootSector.SectorsPerCluster, outputBuf);
         outputBuf += g_BootSector.SectorsPerCluster * g_BootSector.BytesPerSector;

@@ -1,6 +1,6 @@
 # x86 Assembly guide
 
-From [x86 Assembly Guide](https://www.cs.virginia.edu/~evans/cs216/guides/x86.html)
+From [x86 Assembly Guide](https://www.cs.virginia.edu/~evans/cs216/guides/x86.html). The first thing to learn is that, unlike modern language, x86 will execute all the code unless specified otherwise. What this means is that, regardless of whether we put code inside a label or not (like `my_func` or `.branch_here`), the instructions will always be written out to the memory. And computer just go through instruction, line by line. Hence, the need to explicitly tell computer which line to go to, and which line to not go to. The label we have (like `my_func` or `.branch_here`) give us convenient tools to tell computer to go to certain line without having to use the explicit address
 
 ## Register
 
@@ -108,3 +108,30 @@ Next, when we want to have local variable for a subroutine (i.e when registers a
 [Bochs](https://bochs.sourceforge.io/) is a highly portable open source IA-32 (x86) PC emulator written in C++, that runs on most popular platforms. It includes emulation of the Intel x86 CPU, common I/O devices, and a custom BIOS
 
 See [Building an OS - 2 - Reading from the disk](https://www.youtube.com/watch?v=srbnMNk7K7k&list=PLFjM7v6KGMpiH2G-kT781ByCNC_0pKpPN&index=2) too see how to use Bochs to debug a x86 program that emulate BIOS
+
+## ORG and JMP
+
+### JMP
+
+There ar two forms of `JMP`: short jump and long jump. Short jump will direct to the address that is of relative `offset` to the current sector. Long jump will jump to the correct absolute address of `sector:offset`
+
+```asm
+# jump to sector 0xACDC and go to offset 0x5578
+JMP 0xACDC:0x5578
+# jump to offset 0x5578 of current sector
+JMP 0x5578
+```
+
+See [Wikipedia JMP (x86 instruction)](https://en.wikipedia.org/wiki/JMP_(x86_instruction)) and [OSDev Segmentation](https://wiki.osdev.org/Segmentation)
+
+### ORG
+
+See [nasm - confusion regarding functionality of ORG directive](https://forum.osdev.org/viewtopic.php?f=1&t=27678) and [What does [ORG 0x7C00] actually do to the file?](https://stackoverflow.com/questions/46811232/what-does-org-0x7c00-actually-do-to-the-file) and [x86 NASM 'org' directive meaning](https://stackoverflow.com/questions/8140016/x86-nasm-org-directive-meaning)
+
+`ORG` defines where the program in question EXPECTS to be loaded into memory. Put it in another way: `ORG` tell assembler where we expect our instruction (i.e the text segment) to be loaded. The assembler will uses this information to calculate label address
+
+Let's go deeper. First, we must understand that the compiled file (the file we get after assembling our assembly code) contain more than instruction for the computer. As such, the first instruction in the file may not be at the beginning of the file. And if this is the case, how can the computer know where to start execution?
+
+For simple program, the assembler does this well enough that we don't need to worry about. In more complex case, this is not the case. For example, let's say we are writing a bootloader for a kernel. The bootloader load the kernel file on a specific memory address. Now the kernel code address will not be correct: after all, without `ORG` the kernel code has no way to control the address of its labels
+
+`ORG` will offset the label with the specified offset. In other word, it will try to put the instruction right at the place it should be
