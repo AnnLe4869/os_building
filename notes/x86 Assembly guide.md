@@ -2,6 +2,8 @@
 
 From [x86 Assembly Guide](https://www.cs.virginia.edu/~evans/cs216/guides/x86.html). The first thing to learn is that, unlike modern language, x86 will execute all the code unless specified otherwise. What this means is that, regardless of whether we put code inside a label or not (like `my_func` or `.branch_here`), the instructions will always be written out to the memory. And computer just go through instruction, line by line. Hence, the need to explicitly tell computer which line to go to, and which line to not go to. The label we have (like `my_func` or `.branch_here`) give us convenient tools to tell computer to go to certain line without having to use the explicit address
 
+For some document on NASM directive, see [The Netwide Assembler: NASM](https://www.nasm.us/xdoc/2.13.03/html/nasmdoc6.html)
+
 ## Register
 
 Modern (i.e 386 and beyond) x86 processors have eight 32-bit general purpose registers. Some registers have subsections. For example, the least significant 2 bytes of `EAX` can be treated as a 16-bit register called `AX`. The least significant byte of `AX` can be used as a single 8-bit register called `AL`, while the most significant byte of AX can be used as a single 8-bit register called `AH`. These names refer to the same physical register, this means when a two-byte quantity is placed into `DX`, the update affects the value of `DH`, `DL`, and `EDX`
