@@ -4,5 +4,9 @@
         "bootloader",
         "UEFI"
     ],
-    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
+    "files.associations": {
+        "*.ejs": "html",
+        "x86.h": "c"
+    }
 }

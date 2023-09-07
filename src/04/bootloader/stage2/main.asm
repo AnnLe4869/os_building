@@ -1,6 +1,6 @@
 bits 16
 
-section _ENTRY class=CODE   ; tell the nasm to place the stuff below in CODE section
+section _ENTRY class=CODE   ; tell the nasm to place the stuff below in _ENTRY section, class CODE
 
 extern _cstart_             ; specify that _cstart_ is defined elsewhere
 global entry                ; making the below routine global so to be used by other module

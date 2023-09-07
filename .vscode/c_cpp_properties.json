@@ -1,15 +1,19 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "watcom",
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "defines": [],
+            "defines": [
+                "_cdecl="
+            ],
             "cStandard": "c17",
-            "intelliSenseMode": "${default}",
-            "configurationProvider": "ms-vscode.makefile-tools",
-            "compilerPath": "/usr/bin/gcc"
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerPath": "/usr/bin/watcom/binl/wcc",
+            "compilerArgs": [
+                "-4 -d3 -s -wx -ms -zl -zq "
+            ]
         }
     ],
     "version": 4
