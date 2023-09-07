@@ -1,0 +1,156 @@
+Module: /media/asada/Dev/other/os_building/notes/experiments/modulo_x86/main.c
+GROUP: 'DGROUP' CONST,CONST2,_DATA
+
+Segment: _TEXT BYTE USE16 00000071 bytes
+0000				main_:
+0000  53				push		bx
+0001  51				push		cx
+0002  52				push		dx
+0003  56				push		si
+0004  57				push		di
+0005  55				push		bp
+0006  89 E5				mov		bp,sp
+0008  81 EC 1A 00			sub		sp,0x001a
+000C				L$1:
+000C  C7 46 F4 00 00			mov		word ptr -0xc[bp],0x0000
+0011  C7 46 F2 00 00			mov		word ptr -0xe[bp],0x0000
+0016  C7 46 F0 00 00			mov		word ptr -0x10[bp],0x0000
+001B  C7 46 EE 0A 00			mov		word ptr -0x12[bp],0x000a
+0020  C7 46 F6 05 00			mov		word ptr -0xa[bp],0x0005
+0025  C7 46 F8 00 00			mov		word ptr -0x8[bp],0x0000
+002A  8B 46 F6				mov		ax,-0xa[bp]
+002D  89 46 E6				mov		-0x1a[bp],ax
+0030  8B 46 F8				mov		ax,-0x8[bp]
+0033  89 46 E8				mov		-0x18[bp],ax
+0036  66 C7 46 EA 00 00 00 00		mov		dword ptr -0x16[bp],0x00000000
+003E  8B 46 F4				mov		ax,-0xc[bp]
+0041  8B 5E F2				mov		bx,-0xe[bp]
+0044  8B 4E F0				mov		cx,-0x10[bp]
+0047  8B 56 EE				mov		dx,-0x12[bp]
+004A  8D 76 E6				lea		si,-0x1a[bp]
+004D  E8 00 00				call		__U8DR
+0050  89 DE				mov		si,bx
+0052  89 CF				mov		di,cx
+0054  89 56 E6				mov		-0x1a[bp],dx
+0057  8B 46 E6				mov		ax,-0x1a[bp]
+005A  89 46 FA				mov		-0x6[bp],ax
+005D  89 7E FC				mov		-0x4[bp],di
+0060  C7 46 FE 00 00			mov		word ptr -0x2[bp],0x0000
+0065  8B 46 FE				mov		ax,-0x2[bp]
+0068				L$2:
+0068  89 EC				mov		sp,bp
+006A  5D				pop		bp
+006B  5F				pop		di
+006C  5E				pop		si
+006D  5A				pop		dx
+006E  59				pop		cx
+006F  5B				pop		bx
+0070  C3				ret
+0071				L$3:
+
+Routine Size: 113 bytes,    Routine Base: _TEXT + 0000
+
+No disassembly errors
+
+Segment: CONST WORD USE16 00000000 bytes
+
+Segment: CONST2 WORD USE16 00000000 bytes
+
+Segment: _DATA WORD USE16 00000000 bytes
+
+Segment: .debug_info BYTE USE32 000001FF bytes
+0000				L$4:
+0000  FB 01 00 00 02 00                               ......
+0006  00 00 00 00                                     DD	offset L$6
+000A  02 02 FE 01 00 00 2F 6D 65 64 69 61 2F 61 73 61 ....../media/asa
+001A  64 61 2F 44 65 76 2F 6F 74 68 65 72 2F 6F 73 5F da/Dev/other/os_
+002A  62 75 69 6C 64 69 6E 67 2F 6E 6F 74 65 73 2F 65 building/notes/e
+003A  78 70 65 72 69 6D 65 6E 74 73 2F 6D 6F 64 75 6C xperiments/modul
+004A  6F 5F 78 38 36 2F 6D 61 69 6E 2E 63 00          o_x86/main.c.
+0057  00 00 00 00                                     DD	offset L$5
+005B  01 00 56 31 2E 30 20 57 41 54 43 4F 4D 00 00    ..V1.0 WATCOM..
+006A  00 00 00 00                                     DD	offset L$7
+006E  00 00 00 00 02                                  .....
+0073  04 00 00 00                                     DD	offset L$8
+0077  05 63 68 61 72 00 08 01 05 73 69 67 6E 65 64 20 .char....signed 
+0087  63 68 61 72 00 06 01 05 75 6E 73 69 67 6E 65 64 char....unsigned
+0097  20 63 68 61 72 00 08 01 05 73 68 6F 72 74 00 05  char....short..
+00A7  02 05 75 6E 73 69 67 6E 65 64 20 73 68 6F 72 74 ..unsigned short
+00B7  00 07 02 05 69 6E 74 00 05 02 05 75 6E 73 69 67 ....int....unsig
+00C7  6E 65 64 20 69 6E 74 00 07 02 05 6C 6F 6E 67 00 ned int....long.
+00D7  05 04 05 75 6E 73 69 67 6E 65 64 20 6C 6F 6E 67 ...unsigned long
+00E7  00 07 04 05 5F 5F 69 6E 74 36 34 00 05 08 05 75 ....__int64....u
+00F7  6E 73 69 67 6E 65 64 20 5F 5F 69 6E 74 36 34 00 nsigned __int64.
+0107  07 08 05 5F 42 6F 6F 6C 00 07 01 07 01 75 69 6E ..._Bool.....uin
+0117  74 38 5F 74 00 8E 00 00 00 07 01 62 6F 6F 6C 00 t8_t.......bool.
+0127  12 01 00 00 07 01 75 69 6E 74 36 34 5F 74 00 F5 ......uint64_t..
+0137  00 00 00 07 01 69 6E 74 36 34 5F 74 00 EA 00 00 .....int64_t....
+0147  00 07 01 75 69 6E 74 33 32 5F 74 00 D9 00 00 00 ...uint32_t.....
+0157  07 01 69 6E 74 33 32 5F 74 00 D1 00 00 00 07 01 ..int32_t.......
+0167  75 69 6E 74 31 36 5F 74 00 A8 00 00 00 07 01 69 uint16_t.......i
+0177  6E 74 31 36 5F 74 00 9F 00 00 00 07 01 69 6E 74 nt16_t.......int
+0187  38 5F 74 00 7F 00 00 00 84 01 FD 01 00 00 01 BA 8_t.............
+0197  00 00 00 0C 03 0A                               ......
+019D  00 00                                           DW	seg main_
+019F  6D 61 69 6E 00 01 00 01 01 00 00 02 91 0C       main..........
+01AD  00 00                                           DW	offset main_
+01AF  71 00                                           DW	offset L$3
+01B1  00 02 90 21 CE 01 01 00 01 2E 72 65 74 75 72 6E ...!......return
+01C1  00 01 6B BA 00 00 00 62 FC 01 00 00             ..k....b....
+01CD  0C 00                                           DW	offset L$1
+01CF  68 00                                           DW	offset L$2
+01D1  CE 01 01 00 00 61 00 02 91 6E 2B 01 00 00 CE 01 .....a...n+.....
+01E1  01 00 00 62 00 02 91 76 48 01 00 00 CE 01 01 00 ...b...vH.......
+01F1  00 63 00 02 91 7A 48 01 00 00 00 00 00 00       .c...zH.......
+
+Segment: .debug_pubnames BYTE USE32 0000001B bytes
+0000  17 00 00 00 02 00                               ......
+0006  00 00 00 00                                     DD	offset L$4
+000A  71 00 00 00 8F 01 00 00 6D 61 69 6E 00 00 00 00 q.......main....
+001A  00                                              .
+
+Segment: .debug_aranges BYTE USE32 00000018 bytes
+0000  14 00 00 00 02 00                               ......
+0006  00 00 00 00                                     DD	offset L$4
+000A  02 02                                           ..
+000C  00 00                                           DW	offset main_
+000E  00 00                                           DW	seg main_
+0010  71 00 00 00 00 00 00 00                         q.......
+
+Segment: .debug_line BYTE USE32 0000007D bytes
+0000				L$5:
+0000  79 00 00 00 02 00 10 00 00 00 01 00 FF 04 0A 00 y...............
+0010  01 01 01 01 00 00 00 00 00 00 00 4B 03 2F 6D 65 ...........K./me
+0020  64 69 61 2F 61 73 61 64 61 2F 44 65 76 2F 6F 74 dia/asada/Dev/ot
+0030  68 65 72 2F 6F 73 5F 62 75 69 6C 64 69 6E 67 2F her/os_building/
+0040  6E 6F 74 65 73 2F 65 78 70 65 72 69 6D 65 6E 74 notes/experiment
+0050  73 2F 6D 6F 64 75 6C 6F 5F 78 38 36 2F 6D 61 69 s/modulo_x86/mai
+0060  6E 2E 63 00 00 00 00 00 03 02                   n.c.......
+006A  00 00                                           DW	offset main_
+006C  00 03 04                                        ...
+006F  00 00                                           DW	seg main_
+0071  06 05 01 0D 3C 5C 34 E4 20 00 01 01             ....<\4. ...
+
+Segment: .debug_loc BYTE USE32 00000000 bytes
+
+Segment: .debug_abbrev BYTE USE32 00000079 bytes
+0000				L$6:
+0000  02 11 01 01 13 03 08 10 06 13 0F 1B 08 25 08 42 .............%.B
+0010  0F 43 06 35 10 82 41 0B 83 41 06 00 00 05 24 00 .C.5..A..A....$.
+0020  03 08 3E 0B 0B 0B 00 00 07 16 00 32 0B 03 08 49 ..>........2...I
+0030  13 00 00 84 01 2E 01 01 13 32 0B 49 13 2C 0F 46 .........2.I.,.F
+0040  0A 03 08 3F 0C 20 0B 36 0B 27 0C 4C 0B 34 0C 2A ...?. .6.'.L.4.*
+0050  0A 11 01 12 01 33 0B 40 0A 00 00 CE 01 34 00 32 .....3.@.....4.2
+0060  0B 3F 0C 34 0C 03 08 02 0A 49 13 00 00 62 0B 01 .?.4.....I...b..
+0070  01 13 11 01 12 01 00 00 00                      .........
+
+Segment: .debug_macinfo BYTE USE32 00000001 bytes
+0000				L$7:
+0000  00                                              .
+
+Segment: .debug_str BYTE USE32 00000000 bytes
+
+Segment: .WATCOM_references BYTE USE32 00000004 bytes
+0000  00 00 00 00                                     ....
+0004				L$8:
+

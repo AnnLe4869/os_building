@@ -3,7 +3,7 @@ CC=gcc
 CC16=/usr/bin/watcom/binl/wcc
 LD16=/usr/bin/watcom/binl/wlink
 
-SRC_DIR=src/04
+SRC_DIR=src/05
 TOOLS_DIR=tools
 BUILD_DIR=build
 

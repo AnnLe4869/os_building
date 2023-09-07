@@ -2,13 +2,35 @@
 
 From [x86 Assembly Guide](https://www.cs.virginia.edu/~evans/cs216/guides/x86.html). The first thing to learn is that, unlike modern language, x86 will execute all the code unless specified otherwise. What this means is that, regardless of whether we put code inside a label or not (like `my_func` or `.branch_here`), the instructions will always be written out to the memory. And computer just go through instruction, line by line. Hence, the need to explicitly tell computer which line to go to, and which line to not go to. The label we have (like `my_func` or `.branch_here`) give us convenient tools to tell computer to go to certain line without having to use the explicit address
 
-For some document on NASM directive, see [The Netwide Assembler: NASM](https://www.nasm.us/xdoc/2.13.03/html/nasmdoc6.html)
+For some document on NASM directive, see [The Netwide Assembler: NASM](https://www.nasm.us/xdoc/2.13.03/html/nasmdoc6.html). For detail architecture of x86, see [Intel manual, chapter 3](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html#combined)
+
+## Syntax
+
+Although we only have one general x86 (with flavor of course - like x86, x86_64, etc. but all use same language) we have two main syntax: [Intel syntax and AT&T syntax](https://en.wikipedia.org/wiki/X86_assembly_language)
+
+```asm
+; AT&T syntax
+movl $5, %eax
+; Intel syntax
+mov eax, 5
+```
+
+Beside syntax difference, there is no difference in the underlying architecture, meaning all register and how some instructions work are the same in both syntax. And they will all produce the same machine code
 
 ## Register
 
 Modern (i.e 386 and beyond) x86 processors have eight 32-bit general purpose registers. Some registers have subsections. For example, the least significant 2 bytes of `EAX` can be treated as a 16-bit register called `AX`. The least significant byte of `AX` can be used as a single 8-bit register called `AL`, while the most significant byte of AX can be used as a single 8-bit register called `AH`. These names refer to the same physical register, this means when a two-byte quantity is placed into `DX`, the update affects the value of `DH`, `DL`, and `EDX`
 
 ![Figure 1. x86 Registers](x86-registers.png)
+
+Next, let talk about notation. Quite often we see in the document stuff like this
+
+>DIV—Unsigned Divide
+>...
+>Divides unsigned the value in the AX, DX:AX, EDX:EAX, or RDX:RAX registers (dividend) by the source operand
+(divisor) and stores the result in the AX (AH:AL), DX:AX, EDX:EAX, or RDX:RAX registers
+
+What those `DX:AX` means is that they are a pair of registers. This is needed to store data that is bigger than size of a single register. For x86, general purpose registers are 32 bits wide. If we want to store a 64-bit data like an `uint64_t`, we need to use 2 registers. When we denote `DX:AX` we means to use `DX` to store the most significant bits in `DX` and least significant bits in `AX`. See [Quick, beginner MASM register question - DX:AX](https://stackoverflow.com/questions/2667899/quick-beginner-masm-register-question-dxax)
 
 ## Memory and Addressing Modes
 
@@ -86,6 +108,22 @@ mov [eax+esi+edi], ebx      ; At most 2 registers in address computation
 ```
 
 In short, `[ebx]` refer to the content of the address stored in `ebx` while `ebx` alone refer to the content stored in `ebx`
+
+Quick note: the memory address `[ebx + 4]` can also be expressed to be `4[ebx]` - they means the same. For example
+
+```asm
+mov eax, [esi-4]
+; the above is the same as
+move eax, -4[esi]
+```
+
+Another example
+
+```asm
+mov eax, [esi+8]
+; the above is the same as
+move eax, 8[esi]
+```
 
 ## Instruction
 

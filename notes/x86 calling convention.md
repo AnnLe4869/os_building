@@ -59,3 +59,11 @@ push 2                  ; push to stack from right to left
 call _MyFunction1
 add esp, 8              ; caller isn responsible for restoring stack
 ```
+
+Notice the `_cdecl` here. This directive is needed so that the compiler and linker can learn that `MyFunction1` is a function that maybe used elsewhere that is not C. For example, if we want to use this in another Assembly code we can do like this
+
+```asm
+call _MyFunction1
+```
+
+and this should produce the same result regardless of whether we wrote the function in C or in Assembly - as long as we follow the convention (`_cdecl` for C, etc.)
