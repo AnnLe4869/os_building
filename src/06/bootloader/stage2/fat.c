@@ -1,18 +1,15 @@
 #include "fat.h"
 #include "stdio.h"
+#include "memdefs.h"
+#include "utility.h"
 #include "string.h"
 #include "memory.h"
 #include "ctype.h"
-#include <stdlib.h>
 
 #define SECTOR_SIZE             512
 #define MAX_PATH_SIZE           256
 #define MAX_FILE_HANDLES        10
 #define ROOT_DIRECTORY_HANDLE   -1
-#define MEMORY_FAT_SIZE         0x10000
-
-#define min(a,b)    ((a) < (b) ? (a) : (b))
-#define max(a,b)    ((a) > (b) ? (a) : (b))
 
 #pragma pack(push, 1)
 
@@ -47,23 +44,36 @@ typedef struct
 
 #pragma pack(pop)
 
-
+/**
+ * this can get very big and not sensible to store on stack
+ * hence, we store this on FAT_Data,
+ * which itself stored in an empty memory (think of like heap space)
+ * when user request, we will look for the file data from the array
+ */
 typedef struct
 {
+    uint8_t Buffer[SECTOR_SIZE];
     FAT_File Public;
     bool Opened;
     uint32_t FirstCluster;
     uint32_t CurrentCluster;
     uint32_t CurrentSectorInCluster;
-    uint8_t Buffer[SECTOR_SIZE];
 
 } FAT_FileData;
 
+/**
+ * because we don't have malloc here nor we can use global variables
+ * global variables can take way too much space in the data segment
+ * and we don't want to make the stage2 bin file too big
+ * hence, the global variables only contains pointer to a memory address
+ * where the data is actually stored
+ */
 typedef struct
 {
     union
     {
         FAT_BootSector BootSector;
+        // this ensure the BootSector used here occupy SECTOR_SIZE
         uint8_t BootSectorBytes[SECTOR_SIZE];
     } BS;
 
@@ -73,25 +83,32 @@ typedef struct
 
 } FAT_Data;
 
-static FAT_Data g_ActualData;
 static FAT_Data far* g_Data;
 static uint8_t far* g_Fat = NULL;
-static uint32_t g_DataSectionLba;
+static uint32_t g_DataSectionLba; // where the data start in disk
 
 
 bool FAT_ReadBootSector(DISK* disk)
-{
+{   
+    /**
+     * @brief the boot sector is 1 sector wide
+     * located at the first sector of the disk (lba = 0)
+     */
     return DISK_ReadSectors(disk, 0, 1, g_Data->BS.BootSectorBytes);
 }
 
 bool FAT_ReadFat(DISK* disk)
 {
+    /**
+     * @brief FAT region is right after the reserved sectors
+     * 
+     */
     return DISK_ReadSectors(disk, g_Data->BS.BootSector.ReservedSectors, g_Data->BS.BootSector.SectorsPerFat, g_Fat);
 }
 
 bool FAT_Initialize(DISK* disk)
 {
-    g_Data = &g_ActualData;
+    g_Data = (FAT_Data far*)MEMORY_FAT_ADDR;
 
     // read boot sector
     if (!FAT_ReadBootSector(disk))
@@ -101,8 +118,10 @@ bool FAT_Initialize(DISK* disk)
     }
 
     // read FAT
+    // this variable is put right below g_Data in memory
+    // again, we have no malloc so have to manually handle memory allocation
+    g_Fat = (uint8_t far*)g_Data + sizeof(FAT_Data);
     uint32_t fatSize = g_Data->BS.BootSector.BytesPerSector * g_Data->BS.BootSector.SectorsPerFat;
-    g_Fat = (uint8_t*)malloc(fatSize + SECTOR_SIZE);
     if (sizeof(FAT_Data) + fatSize >= MEMORY_FAT_SIZE)
     {
         printf("FAT: not enough memory to read FAT! Required %lu, only have %u\r\n", sizeof(FAT_Data) + fatSize, MEMORY_FAT_SIZE);
@@ -124,8 +143,8 @@ bool FAT_Initialize(DISK* disk)
     g_Data->RootDirectory.Public.Position = 0;
     g_Data->RootDirectory.Public.Size = sizeof(FAT_DirectoryEntry) * g_Data->BS.BootSector.DirEntryCount;
     g_Data->RootDirectory.Opened = true;
-    g_Data->RootDirectory.FirstCluster = 
-    g_Data->RootDirectory.CurrentCluster = 0;
+    g_Data->RootDirectory.FirstCluster = rootDirLba;
+    g_Data->RootDirectory.CurrentCluster = rootDirLba;
     g_Data->RootDirectory.CurrentSectorInCluster = 0;
 
     if (!DISK_ReadSectors(disk, rootDirLba, 1, g_Data->RootDirectory.Buffer))
@@ -177,6 +196,7 @@ FAT_File far* FAT_OpenEntry(DISK* disk, FAT_DirectoryEntry* entry)
     fd->CurrentCluster = fd->FirstCluster;
     fd->CurrentSectorInCluster = 0;
 
+    // read only the first sector into buffer
     if (!DISK_ReadSectors(disk, FAT_ClusterToLba(fd->CurrentCluster), 1, fd->Buffer))
     {
         printf("FAT: read error\r\n");
@@ -188,13 +208,13 @@ FAT_File far* FAT_OpenEntry(DISK* disk, FAT_DirectoryEntry* entry)
 }
 
 uint32_t FAT_NextCluster(uint32_t currentCluster)
-{
+{    
     uint32_t fatIndex = currentCluster * 3 / 2;
 
     if (currentCluster % 2 == 0)
-        return (*(uint16_t*)(g_Fat + fatIndex)) & 0x0FFF;
+        return (*(uint16_t far*)(g_Fat + fatIndex)) & 0x0FFF;
     else
-        return (*(uint16_t*)(g_Fat + fatIndex)) >> 4;
+        return (*(uint16_t far*)(g_Fat + fatIndex)) >> 4;
 }
 
 uint32_t FAT_Read(DISK* disk, FAT_File far* file, uint32_t byteCount, void* dataOut)
@@ -220,6 +240,7 @@ uint32_t FAT_Read(DISK* disk, FAT_File far* file, uint32_t byteCount, void* data
         fd->Public.Position += take;
         byteCount -= take;
 
+        // printf("leftInBuffer=%lu take=%lu\r\n", leftInBuffer, take);
         // See if we need to read more data
         if (leftInBuffer == take)
         {
@@ -284,11 +305,12 @@ void FAT_Close(FAT_File far* file)
 
 bool FAT_FindFile(DISK* disk, FAT_File far* file, const char* name, FAT_DirectoryEntry* entryOut)
 {
-    char fatName[11];
+    char fatName[12];
     FAT_DirectoryEntry entry;
 
     // convert from name to fat name
     memset(fatName, ' ', sizeof(fatName));
+    fatName[11] = '\0';
 
     const char* ext = strchr(name, '.');
     if (ext == NULL)
@@ -299,8 +321,8 @@ bool FAT_FindFile(DISK* disk, FAT_File far* file, const char* name, FAT_Director
 
     if (ext != NULL)
     {
-        for (int i = 0; i < 3 && ext[i+1]; i++)
-            fatName[i + 8] = toupper(ext[i+1]);
+        for (int i = 0; i < 3 && ext[i + 1]; i++)
+            fatName[i + 8] = toupper(ext[i + 1]);
     }
 
     while (FAT_ReadEntry(disk, file, &entry))
@@ -315,8 +337,20 @@ bool FAT_FindFile(DISK* disk, FAT_File far* file, const char* name, FAT_Director
     return false;
 }
 
+/**
+ * @brief open a file from given path
+ * example of path: /home/john/document
+ * 
+ * @param disk 
+ * @param path 
+ * @return FAT_File* 
+ */
 FAT_File far* FAT_Open(DISK* disk, const char* path)
 {
+    /**
+     * we open a directory, search for the next item on path
+     * then close current one and open new one 
+     */
     char name[MAX_PATH_SIZE];
 
     // ignore leading slash

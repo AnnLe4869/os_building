@@ -9,10 +9,10 @@
                 "_cdecl="
             ],
             "cStandard": "c17",
-            "intelliSenseMode": "linux-gcc-x64",
-            "compilerPath": "/usr/bin/watcom/binl/wcc",
+            "intelliSenseMode": "clang-x64",
+            "compilerPath": "/usr/bin/gcc",
             "compilerArgs": [
-                "-4 -d3 -s -wx -ms -zl -zq "
+                // "-4 -d3 -s -wx -ms -zl -zq "
             ]
         }
     ],
