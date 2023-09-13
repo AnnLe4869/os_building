@@ -5,15 +5,11 @@
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "defines": [
-                "_cdecl="
-            ],
+            "defines": [],
             "cStandard": "c17",
-            "intelliSenseMode": "clang-x64",
+            "intelliSenseMode": "${default}",
             "compilerPath": "/usr/bin/gcc",
-            "compilerArgs": [
-                // "-4 -d3 -s -wx -ms -zl -zq "
-            ]
+            "compilerArgs": []
         }
     ],
     "version": 4
