@@ -12,6 +12,8 @@ entry:
     cli
 
     ; save boot drive
+    ; boot drive in dl because we did so in stage1
+    ; BIOS default load the drive it loaded the bootloader from into register dl
     mov [g_BootDrive], dl
 
     ; setup stack
@@ -42,6 +44,8 @@ entry:
     mov ss, ax
    
     ; clear bss (uninitialized data)
+    ; i.e we have to zero out all BSS segment
+    ; when the program is loaded to memory
     mov edi, __bss_start
     mov ecx, __end
     sub ecx, edi

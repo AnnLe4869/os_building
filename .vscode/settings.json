@@ -9,6 +9,7 @@
     "files.associations": {
         "*.ejs": "html",
         "x86.h": "c",
-        "compare": "c"
+        "stdio.h": "c",
+        "stdint.h": "c"
     }
 }

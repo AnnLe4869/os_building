@@ -1,10 +1,12 @@
 ASM = nasm
 ASM_FLAGS = -f elf64
 GCC = gcc
-GCC_FLAGS = -std=c99 -g -ffreestanding -nostdlib
+GCC_FLAGS = -std=c99 -g -ffreestanding -nostdlib -mno-red-zone 
+GCC_FLAGS_NON = -std=c99 -g -ffreestanding
 
 LD = gcc
 LD_FLAGS = -nostdlib
+LD_FLAGS_NON =
 TARGET_LIBS += -lgcc
 
 PHONY: all linker

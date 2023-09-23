@@ -3,3 +3,4 @@ build/*
 doc/*
 *.err
 *.ini
+toolchain/

@@ -1,12 +1,12 @@
 #include "x86.h"
+#include "stdio.h"
+#include "memory.h"
 
 void _start(){
-    // some
     dummy_func();
-    int a = 0;
-    return;
 }
 
-void main(){
-    dummy_func();
-}
+
+// void main(){
+//     dummy_func();
+// }

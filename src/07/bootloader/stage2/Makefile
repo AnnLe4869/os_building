@@ -1,6 +1,6 @@
-TARGET_ASMFLAGS += -f elf
-TARGET_CFLAGS += -ffreestanding -nostdlib
-TARGET_LIBS += -lgcc
+TARGET_ASMFLAGS += -f elf	# output to elf format so we can link together with C object file
+TARGET_CFLAGS += -ffreestanding -nostdlib	# build not depend on current host system and use no standard library
+TARGET_LIBS += -lgcc	# link the GCC low-level runtime library that handle arithmetic operations that the target processor cannot perform directly 
 TARGET_LINKFLAGS += -T linker.ld -nostdlib
 
 SOURCES_C=$(wildcard *.c)
