@@ -4,6 +4,8 @@ We will talk about memory management in protected mode. Two important concepts i
 
 The details can be read in [Intel manual Volume 3 Chapter 3: PROTECTED-MODE MEMORY MANAGEMENT](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html#combined)
 
+One really big note here is that, all of the below applied for the kernel code only and not the program that run inside the kernel. The program that run inside the kernel should not have to worry or care or even know where its sections are actually located in the memory. For example, if my program want to do `call 0x2000`, the kernel should be the one to work out which actual physical address the address `0x2000` the program want corresponds to by jumping through all the TSS and GDT and paging. All the segmentation `A:B` and GDT and paging should only be cared and touched by the kernel only
+
 ## Overview
 
 Memory means segments. We have stack segment, code segment, data segment, etc. Global Descriptor Table (GDT) is a table whose entry details about the all memory segment - where is the segment in term of linear address, access level, etc. We also have Task state segment (TSS) that describe the state of the execution environment for a task. Whether it's a memory segment or a TSS, they are all described by descriptor, each has a selector associated with itself. The selector is used to "point" to the descriptor

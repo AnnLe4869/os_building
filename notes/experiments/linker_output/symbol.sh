@@ -1,0 +1,1 @@
+make && objdump --syms -C -Mintel $1

@@ -1,0 +1,1 @@
+make && objdump -drwC -Mintel $1

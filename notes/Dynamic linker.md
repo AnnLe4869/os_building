@@ -12,6 +12,7 @@ See more on:
 - [Is the dynamic linker automatically invoked by the operating system or by code embedded in the ELF file?](https://unix.stackexchange.com/questions/539352/is-the-dynamic-linker-automatically-invoked-by-the-operating-system-or-by-code-e)
 - [What is the linker and what is the loader in dynamic linking?](https://unix.stackexchange.com/questions/611733/what-is-the-linker-and-what-is-the-loader-in-dynamic-linking)
 - [How programs get run: ELF binaries](https://lwn.net/Articles/631631/)
+- [CppCon 2018: Matt Godbolt “The Bits Between the Bits: How We Get to main()”](https://www.youtube.com/watch?v=dOfucXtyEsU&t=20m)
 
 First of all, dynamic linker can only work when your program is running in a non-freestanding environment. This means the program is running inside an operating system that have some sort of dynamic linker. A dynamic linker is the part of an operating system that loads and links the shared libraries needed by an executable when it is executed (at "run time"), by copying the content of libraries from persistent storage to RAM, filling jump tables and relocating pointers
 

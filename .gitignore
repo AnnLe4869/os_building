@@ -3,4 +3,6 @@ build/*
 doc/*
 *.err
 *.ini
+*.o
+*.obj
 toolchain/

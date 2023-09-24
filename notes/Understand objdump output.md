@@ -2,6 +2,7 @@
 
 See more on:
 
+- [Compiler Explorer](https://godbolt.org/)
 - [Understanding how EIP (RIP) register works?](https://stackoverflow.com/questions/27429026/understanding-how-eip-rip-register-works)
 - [What are the meanings of callq command parameters?](https://stackoverflow.com/questions/56122039/what-are-the-meanings-of-callq-command-parameters)
 - [Assembly - x86 call instruction and memory address?](https://stackoverflow.com/questions/31818870/assembly-x86-call-instruction-and-memory-address)
@@ -9,6 +10,9 @@ See more on:
 - [What is PLT/GOT?](https://reverseengineering.stackexchange.com/questions/1992/what-is-plt-got)
 - [Why are GOT and PLT still present in Linux static stripped binaries?](https://reverseengineering.stackexchange.com/questions/2172/why-are-got-and-plt-still-present-in-linux-static-stripped-binaries)
 - [zSeries ELF Application Binary Interface Supplement](https://refspecs.linuxfoundation.org/ELF/zSeries/lzsabi0_zSeries/x1633.html)
+- [Why are global variables in x86-64 accessed relative to the instruction pointer?](https://stackoverflow.com/questions/56262889/why-are-global-variables-in-x86-64-accessed-relative-to-the-instruction-pointer)
+- [CppCon 2018: Matt Godbolt “The Bits Between the Bits: How We Get to main()”](https://www.youtube.com/watch?v=dOfucXtyEsU&t=20m)
+- [Why compiler point to global variable using [rip+0x00]](https://stackoverflow.com/questions/77161481/why-compiler-point-to-global-variable-using-rip0x00)
 
 `objdump` can do quite a bit of task, but in this case, we want to use `objdump` to investigate the assembly code output. Let's say we have three files like this
 
@@ -149,3 +153,72 @@ Disassembly of section .text:
 ```
 
 Now, we see that, after linked, in`<main>` we see that the `call` actually jump to the function we expected: `call   1149 <add>` jump to the location of our `add` function, while `call   1050 <printf@plt>` jump to location of `printf` function - which will be linked dynamically when the program is loaded/executed
+
+## Global variable
+
+Now let's tweak the `main.c` a little bit and focus on the global variable information
+
+```c
+// main.c
+int b = 7;
+int c = 3;
+
+int main(){
+    int a = 5 + b;
+    int d = 6 + c;
+    return 0;
+}
+```
+
+You will get this result
+
+```bash
+Disassembly of section .text:
+
+0000000000000000 <main>:
+   0:   f3 0f 1e fa             endbr64
+   4:   55                      push   rbp
+   5:   48 89 e5                mov    rbp,rsp
+   8:   8b 05 00 00 00 00       mov    eax,DWORD PTR [rip+0x0]        # e <main+0xe>
+   e:   83 c0 05                add    eax,0x5
+  11:   89 45 f8                mov    DWORD PTR [rbp-0x8],eax
+  14:   8b 05 00 00 00 00       mov    eax,DWORD PTR [rip+0x0]        # 1a <main+0x1a>
+  1a:   83 c0 06                add    eax,0x6
+  1d:   89 45 fc                mov    DWORD PTR [rbp-0x4],eax
+  20:   b8 00 00 00 00          mov    eax,0x0
+  25:   5d                      pop    rbp
+  26:   c3                      ret
+```
+
+Here we can see a weird thing here: we access the global variable by using `[rip+0x0]`. However, if we think about it, it does not make any sense as `rip+0x0` refer to the next instruction, and next instruction is not a value. Well, the linker will do the relocation part for you. Just like above, the `00 00 00 00` address of the instruction will be replaced by actual address by the linker. There is a very good talk by Matt Godbolt about this [CppCon 2018: Matt Godbolt “The Bits Between the Bits: How We Get to main()”](https://www.youtube.com/watch?v=dOfucXtyEsU&t=20m)
+
+Actually, you can see the relocation that the linker will do by running with `--reloc` (or `-r` equivalent)
+
+```bash
+objdump --reloc -M intel -d main.o
+```
+
+And this is what you get
+
+```bash
+main.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <main>:
+   0:   f3 0f 1e fa             endbr64
+   4:   55                      push   rbp
+   5:   48 89 e5                mov    rbp,rsp
+   8:   8b 05 00 00 00 00       mov    eax,DWORD PTR [rip+0x0]        # e <main+0xe>  a: R_X86_64_PC32        b-0x4
+   e:   83 c0 05                add    eax,0x5
+  11:   89 45 f8                mov    DWORD PTR [rbp-0x8],eax
+  14:   8b 05 00 00 00 00       mov    eax,DWORD PTR [rip+0x0]        # 1a <main+0x1a>        16: R_X86_64_PC32       c-0x4
+  1a:   83 c0 06                add    eax,0x6
+  1d:   89 45 fc                mov    DWORD PTR [rbp-0x4],eax
+  20:   b8 00 00 00 00          mov    eax,0x0
+  25:   5d                      pop    rbp
+  26:   c3                      ret
+```
+
+We see that the linker is called (at line 8) to find where symbol `b` is defined, subtract that by `0x04` and "poked" it in using this `R_X86_64_PC32` at address `a`. In other words, put the instruction right here in this address `a` (which if you notice, is the first byte `00` after `83 05`). For details about how the relocation work out, see [What do R_X86_64_32S and R_X86_64_64 relocation mean?](https://stackoverflow.com/questions/6093547/what-do-r-x86-64-32s-and-r-x86-64-64-relocation-mean/33289761#33289761) - make sure to check out the two links the answer gave. In short: ELF file has a section `.rela.text` that specify the relocation table. This table has info about the location of text that the symbol should replace and where the value for the symbol located. See [How does C++ linking work in practice? [duplicate]](https://stackoverflow.com/questions/12122446/how-does-c-linking-work-in-practice/30507725#30507725)

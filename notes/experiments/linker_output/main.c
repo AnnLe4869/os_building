@@ -1,8 +1,9 @@
 #include "add.h"
-#include "stdio.h"
+int b = 7;
+int c = 3;
 
 int main(){
-    int a = add(5,9);
-    printf("a value is %d \n", a);
+    int a = 5 + b;
+    int d = add(4, c);
     return 0;
 }

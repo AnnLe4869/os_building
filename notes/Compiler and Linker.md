@@ -20,6 +20,15 @@ Think about it: when we compile one file into an object file, although this obje
 
 One important thing to remember is that, the linker is also the program that assigns the memory address for each section of the program. This means, when the program is loaded to memory, the location of where each segment is located in memory was specified by the linker (roughly speaking - or at least, the memory allocated to the program by the kernel). We can technically access the memory location, let's say, `.bss` section and do some stuff with if from the program itself if we use in conjunction with linker script symbol
 
+One must be clear about what linker do in term of memory management: it reorganize the all object files into the final file, and by that I mean, linker will determine where all the parts of the files will live in memory: where this function should be in memory, where this `.data` section should be in memory, how big is `.bss` section and where it should live, etc. Linker after give everything a memory address, will "correct" all the jump and call instruction address. Before linking, the compiler will put a "dumb" address whenever the code want to call a routine or want to refer to a non-local variable. This dumb address point to the next instruction. The linker will fill in this dumb address by an actual address after lining all object file (on how it does this, see [CppCon 2018: Matt Godbolt “The Bits Between the Bits: How We Get to main()”](https://www.youtube.com/watch?v=dOfucXtyEsU&t=20m))
+
+The linker **DOES NOT**:
+
+- Allocate the memory for you. The kernel when it execute the file will allocate the memory the file request. The linker only put the memory address it wants all pieces of program to be. One really big note here is that, the memory you see in the final executable file is most likely not the final address
+- Clear up the memory for you. For example, the `.bss` section should be all zeroed out, but this is the job of kernel and not the linker. Linker only "expect" that the memory address that the `.bss` section will live should be zeroed out
+
+Let's talk more about the first point. If you check the final executable file using `objdump`, you will see that the file is start at `0000`, and each section seems to stay at a very specific address (for example, the `<main>` function is at `0000000000001141`). This is kinda weird if you think about it: how does the linker know beforehand that the program will certainly be loaded at this address? What if the address is busy storing other stuff when the processor load the program? Well, the paging give the program a "free range memory range" as if the the program has the whole memory range
+
 ### Static vs Dynamic Linker
 
 See [What do 'statically linked' and 'dynamically linked' mean?](https://stackoverflow.com/questions/311882/what-do-statically-linked-and-dynamically-linked-mean) and [Static vs. Dynamic Linking](https://www.baeldung.com/cs/static-dynamic-linking-differences)
